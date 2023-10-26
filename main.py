@@ -1,47 +1,35 @@
-import tkinter as tk
-from PIL import Image, ImageTk
-from itertools import count, cycle
-class ImageLabel(tk.Label):
-    """
-    A Label that displays images, and plays them if they are gifs
-    :im: A PIL Image instance or a string filename
-    """
-    def load(self, im):
-        if isinstance(im, str):
-            im = Image.open(im)
-        frames = []
-        try:
-            for i in count(1):
-                frames.append(ImageTk.PhotoImage(im.copy()))
-                im.seek(i)
-        except EOFError:
-            pass
-        self.frames = cycle(frames)
-        try:
-            self.delay = im.info['duration']
-        except:
-            self.delay = 100
-        if len(frames) == 1:
-            self.config(image=next(self.frames))
+import cv2
+import numpy as np 
+import time
+
+
+
+
+while True:
+    #This is to check whether to break the first loop
+    isclosed=0
+    cap = cv2.VideoCapture('robot_blink.mp4')
+    while (True):
+
+        ret, frame = cap.read()
+        # It should only show the frame when the ret is true
+        if ret == True:
+
+            cv2.namedWindow("frame", cv2.WINDOW_NORMAL)
+            cv2.setWindowProperty("frame", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+            cv2.imshow('frame',frame)
+            if cv2.waitKey(1) == 27:
+                # When esc is pressed isclosed is 1
+                isclosed=1
+                break
         else:
-            self.next_frame()
-    def unload(self):
-        self.config(image=None)
-        self.frames = None
-    def next_frame(self):
-        if self.frames:
-            self.config(image=next(self.frames))
-            self.after(self.delay, self.next_frame)
-#demo :
+            break
+    # To break the loop if it is closed manually
+    if isclosed:
+        break
+    time.sleep(5)
 
-anim = None
 
-def normal():
-   lbl.load("robot_eyes.gif")
-   
-root = tk.Tk()
-root.attributes('-fullscreen', True)
-lbl = ImageLabel(root)
-lbl.pack()
-normal()
-root.mainloop()
+
+cap.release()
+cv2.destroyAllWindows()
